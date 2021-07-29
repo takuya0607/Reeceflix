@@ -10,7 +10,7 @@
         <link rel="stylesheet" type="text/css" href="assets/style/style.css" />
     </head>
     <body>
-        
+
         <div class="signInContainer">
 
             <div class="column">
@@ -38,4 +38,4 @@
         </div>
 
     </body>
-</html>
+</html> 
