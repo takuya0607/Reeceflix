@@ -1,41 +1,73 @@
 <?php
-    if(isset($_POST["submitButton"])) {
-        echo "Form was submitted";
-    }
+require_once("includes/config.php");
+require_once("includes/classes/FormSanitizer.php");
+require_once("includes/classes/Constants.php");
+require_once("includes/classes/Account.php");
+
+$account = new Account($con);
+
+if (isset($_POST["submitButton"])) {
+
+  $username = FormSanitizer::sanitizeFormUsername($_POST["username"]);
+  $password = FormSanitizer::sanitizeFormPassword($_POST["password"]);
+
+  // $successにはtrue or falseが格納されている
+  $success = $account->login(
+    $username,
+    $password,
+  );
+
+  if ($success) {
+    $_SESSION["userLoggedIn"] = $username;
+    header("Location: index.php");
+  }
+}
+
+// 前回の入力情報を保持する処理
+function getInputValue($name)
+{
+  if(isset($_POST[$name])){
+    echo $_POST[$name];
+  };
+}
+
 ?>
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Welcome to Reeceflix</title>
-        <link rel="stylesheet" type="text/css" href="assets/style/style.css" />
-    </head>
-    <body>
 
-        <div class="signInContainer">
+<head>
+  <title>Welcome to Reeceflix</title>
+  <link rel="stylesheet" type="text/css" href="assets/style/style.css" />
+</head>
 
-            <div class="column">
+<body>
 
-                <div class="header">
-                    <img src="assets/images/logo.png" title="Logo" alt="Site logo" />
-                    <h3>Sign In</h3>
-                    <span>to continue to Reeceflix</span>
-                </div>
+  <div class="signInContainer">
 
-                <form method="POST">
+    <div class="column">
 
-                    <input type="text" name="username" placeholder="Username" required>
+      <div class="header">
+        <img src="assets/images/logo.png" title="Logo" alt="Site logo" />
+        <h3>Sign In</h3>
+        <span>to continue to Reeceflix</span>
+      </div>
 
-                    <input type="password" name="password" placeholder="Password" required>
+      <form method="POST">
+        <?php echo $account->getError(Constants::$loginFailed); ?>
+        <input type="text" name="username" placeholder="Username" value="<?php getInputValue("username") ?>" required>
 
-                    <input type="submit" name="submitButton" value="SUBMIT">
+        <input type="password" name="password" placeholder="Password" required>
 
-                </form>
+        <input type="submit" name="submitButton" value="SUBMIT">
 
-                <a href="register.php" class="signInMessage">Need an account? Sign up here!</a>
+      </form>
 
-            </div>
+      <a href="register.php" class="signInMessage">Need an account? Sign up here!</a>
 
-        </div>
+    </div>
 
-    </body>
-</html> 
+  </div>
+
+</body>
+
+</html>
