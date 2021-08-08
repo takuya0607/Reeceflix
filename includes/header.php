@@ -1,6 +1,8 @@
 <?php
 require_once("includes/config.php");
 require_once("includes/classes/PreviewProvider.php");
+require_once("includes/classes/CategoryContainers.php");
+require_once("includes/classes/EntityProvider.php");
 require_once("includes/classes/Entity.php");
 
 if (!isset($_SESSION["userLoggedIn"])) {
@@ -23,7 +25,7 @@ $userLoggedIn = $_SESSION["userLoggedIn"];
 </head>
 
 <body>
-  <div class='wrapper'></div>
+  <div class='wrapper'>
 </body>
 
 </html>
