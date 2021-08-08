@@ -42,17 +42,34 @@ class PreviewProvider
     // echo $name;
   }
 
+  public function createEntityPreviewSquare($entity)
+  {
+    $id = $entity->getId();
+    $thumbnail = $entity->getThumbnail();
+    $name = $entity->getName();
+
+    return "<a href='entity.php?id=$id'>
+    <div class='previewContainer small'>
+      <img src='$thumbnail' title='$name'>
+    </div>
+    </a>";
+  }
+
   private function getRandomEntity()
   {
-    // entitiesテーブルからランダムに1つデータを取得する
-    $query = $this->con->prepare("SELECT * FROM entities ORDER BY RAND() LIMIT 1");
-    $query->execute();
+    // // entitiesテーブルからランダムに1つデータを取得する
+    // $query = $this->con->prepare("SELECT * FROM entities ORDER BY RAND() LIMIT 1");
+    // $query->execute();
 
-    // 連想配列としてデータを格納する
-    $row = $query->fetch(PDO::FETCH_ASSOC);
-    // echo $row["name"];
+    // // 連想配列としてデータを格納する
+    // $row = $query->fetch(PDO::FETCH_ASSOC);
+    // // echo $row["name"];
 
-    return new Entity($this->con,$row);
+    // return new Entity($this->con,$row);
+
+    $entity = EntityProvider::getEntities($this->con, null, 1);
+    return $entity[0];
+
   }
 
 }
