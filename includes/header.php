@@ -31,6 +31,10 @@ $userLoggedIn = $_SESSION["userLoggedIn"];
 
 <body>
   <div class='wrapper'>
-</body>
 
-</html>
+<?php
+// 動画視聴中だったらnavbarを非表示にする
+if(!isset($hideNav)) {
+  include_once("includes/navBar.php");
+}
+?>
