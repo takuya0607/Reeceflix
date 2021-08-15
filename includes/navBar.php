@@ -8,8 +8,8 @@
 
       <ul class='navLinks'>
         <li><a href="index.php">Home</a></li>
-        <li><a href="index.php">TV Shows</a></li>
-        <li><a href="index.php">Movies</a></li>
+        <li><a href="shows.php">TV Shows</a></li>
+        <li><a href="movies.php">Movies</a></li>
       </ul>
 
       <div class='rightItems'>
