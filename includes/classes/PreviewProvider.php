@@ -1,5 +1,5 @@
 <?php
-
+// 画面上部に表示されるプレビュー動画表に関するクラス
 class PreviewProvider
 {
 
@@ -10,6 +10,39 @@ class PreviewProvider
   {
     $this->con = $con;
     $this->username = $username;
+  }
+
+  public function createCategoryPreviewVideo($categoryId)
+  {
+    $entitiesArray = EntityProvider::getEntities($this->con, $categoryId, 1);
+
+    if (sizeof($entitiesArray) == 0) {
+      ErrorMessage::show("No TV shows to display");
+    }
+
+    return $this->createPreviewVideo($entitiesArray[0]);
+  }
+
+  public function createTVShowPreviewVideo()
+  {
+    $entitiesArray = EntityProvider::getTVShowEntities($this->con, null, 1);
+
+    if(sizeof($entitiesArray) == 0){
+      ErrorMessage::show("No TV shows to display");
+    }
+
+    return $this->createPreviewVideo($entitiesArray[0]);
+  }
+
+  public function createMoviesPreviewVideo()
+  {
+    $entitiesArray = EntityProvider::getMovieEntities($this->con, null, 1);
+
+    if (sizeof($entitiesArray) == 0) {
+      ErrorMessage::show("No  Movies to display");
+    }
+
+    return $this->createPreviewVideo($entitiesArray[0]);
   }
 
   public function createPreviewVideo($entity)
