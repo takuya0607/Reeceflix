@@ -10,6 +10,24 @@ class Account {
     $this->con = $con;
   }
 
+  public function updateDetails($fn, $ln, $em, $un){
+    $this->validateFirstName($fn);
+    $this->validateLastName($ln);
+    $this->validateNewEmail($em, $un);
+
+    if(empty($this->errorArray)){
+      $query = $this->con->prepare("UPDATE users SET firstName=:fn, lastName=:ln, email=:em WHERE username=:un");
+      $query->bindValue(":fn", $fn);
+      $query->bindValue(":ln", $ln);
+      $query->bindValue(":em", $em);
+      $query->bindValue(":un", $un);
+      return $query->execute();
+    }
+
+    return false;
+  }
+
+
   public function register($fn, $ln, $un, $em, $em2, $pw ,$pw2)
   {
     $this->validateFirstName($fn);
@@ -24,6 +42,7 @@ class Account {
 
     return false;
   }
+
 
   public function login($un, $pw)
   {
@@ -43,6 +62,7 @@ class Account {
     array_push($this->errorArray, Constants::$loginFailed);
     return false;
   }
+
 
   private function insertUserDetails($fn, $ln, $un, $em, $pw)
   {
@@ -77,6 +97,7 @@ class Account {
     }
   }
 
+
   private function validateUsername($un)
   {
     if(strlen($un) < 2 || strlen($un) >25){
@@ -94,6 +115,7 @@ class Account {
       array_push($this->errorArray,Constants::$usernameTaken);
     }
   }
+
 
   private function validateEmails($em,$em2)
   {
@@ -115,11 +137,34 @@ class Account {
     $query->bindValue(":em", $em);
     $query->execute();
 
-    // usernameが既にDBに保存されていた場合の処理
+    // emailが既にDBに保存されていた場合の処理
     if ($query->rowCount() != 0) {
       array_push($this->errorArray, Constants::$emailTaken);
     }
   }
+
+
+  private function validateNewEmail($em, $un)
+  {
+    // なぜ$emのみをチェックするかというと、この時点で$em=$em2が成立しているから
+    if (!filter_var($em, FILTER_VALIDATE_EMAIL)) {
+      array_push($this->errorArray, Constants::$emailInvalid);
+      // $emと$em2に入力規則の誤りがあれば、その時点で処理を中断
+      return;
+    }
+
+    // 別のユーザーが新しく設定したemailで登録しているかの確認をする
+    $query = $this->con->prepare("SELECT * FROM users WHERE email=:em AND username != :un");
+    $query->bindValue(":em", $em);
+    $query->bindValue(":un", $un);
+    $query->execute();
+
+    // emailが既にDBに保存されていた場合の処理
+    if ($query->rowCount() != 0) {
+      array_push($this->errorArray, Constants::$emailTaken);
+    }
+  }
+
 
   private function validatePasswords($pw,$pw2)
   {
@@ -134,11 +179,54 @@ class Account {
     }
   }
 
+
   public function getError($error)
   {
     if (in_array($error, $this->errorArray)) {
       return "<span class='errorMessage'>$error</span>";
     }
   }
+
+
+  public function getFirstError()
+  {
+    if(!empty($this->errorArray)){
+      return $this->errorArray[0];
+    }
+  }
+
+
+  public function updatePassword($olfPw, $pw, $pw2, $un)
+  {
+    $this->validateOldPassword($olfPw,$un);
+    $this->validatePasswords($pw, $pw2);
+
+    if (empty($this->errorArray)) {
+      $query = $this->con->prepare("UPDATE users SET password=:pw WHERE username=:un");
+      $pw = hash("sha512", $pw);
+      $query->bindValue(":pw", $pw);
+      $query->bindValue(":un", $un);
+      return $query->execute();
+    }
+
+    return false;
+  }
+
+  public function validateOldPassword($oldPw, $un)
+  {
+    $pw = hash("sha512", $oldPw);
+
+    $query = $this->con->prepare("SELECT * FROM users WHERE username=:un AND password=:pw");
+
+    $query->bindValue(":un", $un);
+    $query->bindValue(":pw", $pw);
+    $query->execute();
+
+    // 入力された古いパスワードが、DBに登録されているかの確認
+    if($query->rowCount() == 0){
+      array_push($this->errorArray, Constants::$passwordIncorrect);
+    }
+  }
+
 }
 ?>
